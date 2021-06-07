@@ -1,5 +1,6 @@
 #include <LiquidCrystal.h>
 #include <HashMap.h>
+#include <IRremote.h>
 
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 const byte HASHSIZE = 8;
