@@ -4,7 +4,7 @@
 
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 const byte HASHSIZE = 8;
-int RECV_PIN = 10;
+int RECV_PIN = 9;
 
 IRrecv irrecv(RECV_PIN);
 decode_results results; 
@@ -95,8 +95,6 @@ String evalEnum(Person p) {
 
 
 void setup() {
-
-  pinMode(RECV_PIN, INPUT);
   
   wins[0](Jack, 0);
   wins[1](Chris, 0);
@@ -144,6 +142,7 @@ void loop() {
 
     if (irrecv.decode(&results)) {
       Serial.println(results.value, HEX);
+      Serial.println("hello");
       irrecv.resume();
     }
 }
