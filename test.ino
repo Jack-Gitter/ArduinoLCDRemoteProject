@@ -4,6 +4,11 @@
 
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 const byte HASHSIZE = 8;
+int RECV_PIN = 10;
+
+IRrecv irrecv(RECV_PIN);
+decode_results results; 
+
 
 enum Person {
   Jack, Chris, Mason, Will, Evan, Nick, Declan, Mehdi 
@@ -91,37 +96,44 @@ String evalEnum(Person p) {
 
 void setup() {
 
+  pinMode(RECV_PIN, INPUT);
   
   wins[0](Jack, 0);
   wins[1](Chris, 0);
   wins[2](Mason, 0);
-  wins[4](Will, 0);
-  wins[5](Evan, 0);
-  wins[6](Nick, 0);
-  wins[7](Declan, 0);
-  wins[8](Mehdi, 0);
+  wins[3](Will, 0);
+  wins[4](Evan, 0);
+  wins[5](Nick, 0);
+  wins[6](Declan, 0);
+  wins[7](Mehdi, 0);
 
 
   avgCups[0](Jack, 0);
   avgCups[1](Chris, 0);
   avgCups[2](Mason, 0);
-  avgCups[4](Will, 0);
-  avgCups[5](Evan, 0);
-  avgCups[6](Nick, 0);
-  avgCups[7](Declan, 0);
-  avgCups[8](Mehdi, 0);
+  avgCups[3](Will, 0);
+  avgCups[4](Evan, 0);
+  avgCups[5](Nick, 0);
+  avgCups[6](Declan, 0);
+  avgCups[7](Mehdi, 0);
 
   gamesPlayed[0](Jack, 0);
   gamesPlayed[1](Chris, 0);
   gamesPlayed[2](Mason, 0);
-  gamesPlayed[4](Will, 0);
-  gamesPlayed[5](Evan, 0);
-  gamesPlayed[6](Nick, 0);
-  gamesPlayed[7](Declan, 0);
-  gamesPlayed[8](Mehdi, 0);
+  gamesPlayed[3](Will, 0);
+  gamesPlayed[4](Evan, 0);
+  gamesPlayed[5](Nick, 0);
+  gamesPlayed[6](Declan, 0);
+  gamesPlayed[7](Mehdi, 0);
 
+  Serial.begin(9600);
+  Serial.print("output");
+  irrecv.enableIRIn();
+  
   Person goat = Jack;
   lcd.begin(16, 2);
+  lcd.print(evalEnum2(currStat));
+  lcd.setCursor(0, 1);
   lcd.print(evalEnum(Jack));
     
   
@@ -130,5 +142,8 @@ void setup() {
 
 void loop() {
 
-    //lcd.print(evalEnum(Evan));
+    if (irrecv.decode(&results)) {
+      Serial.println(results.value, HEX);
+      irrecv.resume();
+    }
 }
