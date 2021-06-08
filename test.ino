@@ -195,14 +195,14 @@ void setup() {
   gamesPlayed[6](Declan, 0);
   gamesPlayed[7](Mehdi, 0);
 
-  winPercentage[0](Jack, 100);
-  winPercentage[1](Chris, 100);
-  winPercentage[2](Mason, 100);
-  winPercentage[3](Will, 100);
-  winPercentage[4](Evan, 100);
-  winPercentage[5](Nick, 100);
-  winPercentage[6](Declan, 100);
-  winPercentage[7](Mehdi, 100);
+  winPercentage[0](Jack, .1);
+  winPercentage[1](Chris, .1);
+  winPercentage[2](Mason, .1);
+  winPercentage[3](Will, .1);
+  winPercentage[4](Evan, .1);
+  winPercentage[5](Nick, .1);
+  winPercentage[6](Declan, .1);
+  winPercentage[7](Mehdi, .1);
 
   totalCups[0](Jack, 0);
   totalCups[1](Chris, 0);
