@@ -11,6 +11,7 @@
 #include <LiquidCrystal.h>
 #include <HashMap.h>
 #include <IRremote.h>
+#include <EEPROM.h>
 
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 6;
 const byte HASHSIZE = 8;
@@ -168,50 +169,50 @@ void setup() {
 
   lcd.begin(16, 2);
   
-  wins[0](Jack, 0);
-  wins[1](Chris, 0);
-  wins[2](Mason, 0);
-  wins[3](Will, 0);
-  wins[4](Evan, 0);
-  wins[5](Nick, 0);
-  wins[6](Declan, 0);
-  wins[7](Mehdi, 0);
+  wins[0](Jack, EEPROM.read(0));
+  wins[1](Chris, EEPROM.read(1));
+  wins[2](Mason, EEPROM.read(2));
+  wins[3](Will, EEPROM.read(3));
+  wins[4](Evan, EEPROM.read(4));
+  wins[5](Nick, EEPROM.read(5))
+  wins[6](Declan, EEPROM.read(6));
+  wins[7](Mehdi, EEPROM.read(7));
 
-  avgCups[0](Jack, 0);
-  avgCups[1](Chris, 0);
-  avgCups[2](Mason, 0);
-  avgCups[3](Will, 0);
-  avgCups[4](Evan, 0);
-  avgCups[5](Nick, 0);
-  avgCups[6](Declan, 0);
-  avgCups[7](Mehdi, 0);
+  avgCups[0](Jack, EEPROM.read(8));
+  avgCups[1](Chris, EEPROM.read(9));
+  avgCups[2](Mason, EEPROM.read(10));
+  avgCups[3](Will, EEPROM.read(11));
+  avgCups[4](Evan, EEPROM.read(12));
+  avgCups[5](Nick, EEPROM.read(13));
+  avgCups[6](Declan, EEPROM.read(14));
+  avgCups[7](Mehdi, EEPROM.read(15));
 
-  gamesPlayed[0](Jack, 0);
-  gamesPlayed[1](Chris, 0);
-  gamesPlayed[2](Mason, 0);
-  gamesPlayed[3](Will, 0);
-  gamesPlayed[4](Evan, 0);
-  gamesPlayed[5](Nick, 0);
-  gamesPlayed[6](Declan, 0);
-  gamesPlayed[7](Mehdi, 0);
+  gamesPlayed[0](Jack, EEPROM.read(16));
+  gamesPlayed[1](Chris, EEPROM.read(17));
+  gamesPlayed[2](Mason, EEPROM.read(18));
+  gamesPlayed[3](Will, EEPROM.read(19));
+  gamesPlayed[4](Evan, EEPROM.read(20));
+  gamesPlayed[5](Nick, EEPROM.read(21));
+  gamesPlayed[6](Declan, EEPROM.read(22));
+  gamesPlayed[7](Mehdi, EEPROM.read(23));
 
-  winPercentage[0](Jack, .1);
-  winPercentage[1](Chris, .1);
-  winPercentage[2](Mason, .1);
-  winPercentage[3](Will, .1);
-  winPercentage[4](Evan, .1);
-  winPercentage[5](Nick, .1);
-  winPercentage[6](Declan, .1);
-  winPercentage[7](Mehdi, .1);
+  winPercentage[0](Jack, EEPROM.read(24));
+  winPercentage[1](Chris, EEPROM.read(25));
+  winPercentage[2](Mason, EEPROM.read(26));
+  winPercentage[3](Will, EEPROM.read(27));
+  winPercentage[4](Evan, EEPROM.read(28));
+  winPercentage[5](Nick, EEPROM.read(29));
+  winPercentage[6](Declan, EEPROM.read(30));
+  winPercentage[7](Mehdi, EEPROM.read(31));
 
-  totalCups[0](Jack, 0);
-  totalCups[1](Chris, 0);
-  totalCups[2](Mason, 0);
-  totalCups[3](Will, 0);
-  totalCups[4](Evan, 0);
-  totalCups[5](Nick, 0);
-  totalCups[6](Declan, 0);
-  totalCups[7](Mehdi, 0);
+  totalCups[0](Jack, EEPROM.read(32));
+  totalCups[1](Chris, EEPROM.read(33));
+  totalCups[2](Mason, EEPROM.read(34));
+  totalCups[3](Will, EEPROM.read(35));
+  totalCups[4](Evan, EEPROM.read(36));
+  totalCups[5](Nick, EEPROM.read(37));
+  totalCups[6](Declan, EEPROM.read(38));
+  totalCups[7](Mehdi, EEPROM.read(39));
 
 
   Serial.begin(9600);
@@ -305,6 +306,68 @@ void loop() {
           }
           avgCups[currPlayer](currPlayer, totalCups.getValueOf(currPlayer) / gamesPlayed.getValueOf(currPlayer));
           winPercentage[currPlayer](currPlayer, wins.getValueOf(currPlayer) / gamesPlayed.getValueOf(currPlayer));
+
+          
+          switch(currPlayer) {
+            case Jack:
+              EEPROM.write(0, wins.getValueOf(currPlayer));
+              EEPROM.write(8, avgCups.getValueOf(currPlayer));
+              EEPROM.write(16, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(24, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(32, totalCups.getValueOf(currPlayer));
+              break;
+            case Chris:
+              EEPROM.write(1, wins.getValueOf(currPlayer));
+              EEPROM.write(9, avgCups.getValueOf(currPlayer));
+              EEPROM.write(17, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(25, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(33, totalCups.getValueOf(currPlayer));
+              break; 
+            case Mason:
+              EEPROM.write(2, wins.getValueOf(currPlayer));
+              EEPROM.write(10, avgCups.getValueOf(currPlayer));
+              EEPROM.write(18, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(26, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(34, totalCups.getValueOf(currPlayer));
+              break; 
+            case Will:
+              EEPROM.write(3, wins.getValueOf(currPlayer));
+              EEPROM.write(11, avgCups.getValueOf(currPlayer));
+              EEPROM.write(19, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(27, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(35, totalCups.getValueOf(currPlayer));
+              break; 
+            case Evan:
+              EEPROM.write(4, wins.getValueOf(currPlayer));
+              EEPROM.write(12, avgCups.getValueOf(currPlayer));
+              EEPROM.write(20, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(28, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(36, totalCups.getValueOf(currPlayer));
+              break; 
+            case Nick:
+              EEPROM.write(5, wins.getValueOf(currPlayer));
+              EEPROM.write(13, avgCups.getValueOf(currPlayer));
+              EEPROM.write(21, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(29, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(37, totalCups.getValueOf(currPlayer));
+              break; 
+            case Declan:
+              EEPROM.write(6, wins.getValueOf(currPlayer));
+              EEPROM.write(14, avgCups.getValueOf(currPlayer));
+              EEPROM.write(22, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(30, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(38, totalCups.getValueOf(currPlayer));
+              break; 
+            case Mehdi:
+              EEPROM.write(7, wins.getValueOf(currPlayer));
+              EEPROM.write(15, avgCups.getValueOf(currPlayer));
+              EEPROM.write(23, gamesPlayed.getValueOf(currPlayer));
+              EEPROM.write(31, winPercentage.getValueOf(currPlayer));
+              EEPROM.write(39, totalCups.getValueOf(currPlayer));
+              break; 
+            default:
+              break;
+          }
           cupsMade = "-1";
           editingWins = false;
           editingCups = false;
