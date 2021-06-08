@@ -1,5 +1,13 @@
-//things left to do: make it so that the win loss screen works, make it so that the program actually displays w/l instead of cups made where it should, make a back button to clear progress
+//todo: 
+/*
+ * 
+ * get on the screen the total games played for each person 
+ * save the stuff to the memory
+ * actually calculate the averages
+ */
 
+
+ //should i have a total win and win percent array to make things easier to calculate?? probably lets do that
 #include <LiquidCrystal.h>
 #include <HashMap.h>
 #include <IRremote.h>
@@ -23,12 +31,20 @@ String cupsMade = "-1";
 
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-HashType<Person, int> hashRawArray[HASHSIZE];
-HashType<Person, int> hashRawArray2[HASHSIZE];
-HashType<Person, int> hashRawArray3[HASHSIZE]; 
-HashMap<Person, int> wins = HashMap<Person, int>(hashRawArray, HASHSIZE);
-HashMap<Person, int> avgCups = HashMap<Person, int>(hashRawArray2, HASHSIZE);
-HashMap<Person, int> gamesPlayed = HashMap<Person, int>(hashRawArray3, HASHSIZE);
+HashType<Person, float> hashRawArray[HASHSIZE];
+HashType<Person, float> hashRawArray2[HASHSIZE];
+HashType<Person, float> hashRawArray3[HASHSIZE]; 
+HashType<Person, float> hashRawArray4[HASHSIZE];
+HashType<Person, float> hashRawArray5[HASHSIZE];
+
+HashMap<Person, float> wins = HashMap<Person, float>(hashRawArray, HASHSIZE);
+HashMap<Person, float> avgCups = HashMap<Person, float>(hashRawArray2, HASHSIZE);
+HashMap<Person, float> gamesPlayed = HashMap<Person, float>(hashRawArray3, HASHSIZE);
+HashMap<Person, float> winPercentage = HashMap<Person, float>(hashRawArray4, HASHSIZE);
+HashMap<Person, float> totalCups = HashMap<Person, float>(hashRawArray5, HASHSIZE);
+
+
+
 
 Person currPlayer = Jack;
 Stat currStat = Wins;
@@ -128,7 +144,7 @@ void displayCorrectInformation(Person p) {
   lcd.clear();
   String person = evalEnum(p) + ":"; 
   String averageCups = (String)avgCups.getValueOf(p);
-  String winNum = (String)wins.getValueOf(p);
+  String winNum = (String)winPercentage.getValueOf(p);
   lcd.print(person);
   lcd.setCursor(person.length()+1, 0);
   lcd.print("C:" + averageCups);
@@ -174,7 +190,25 @@ void setup() {
   gamesPlayed[5](Nick, 0);
   gamesPlayed[6](Declan, 0);
   gamesPlayed[7](Mehdi, 0);
-  
+
+  winPercentage[0](Jack, 100);
+  winPercentage[1](Chris, 100);
+  winPercentage[2](Mason, 100);
+  winPercentage[3](Will, 100);
+  winPercentage[4](Evan, 100);
+  winPercentage[5](Nick, 100);
+  winPercentage[6](Declan, 100);
+  winPercentage[7](Mehdi, 100);
+
+  totalCups[0](Jack, 0);
+  totalCups[1](Chris, 0);
+  totalCups[2](Mason, 0);
+  totalCups[3](Will, 0);
+  totalCups[4](Evan, 0);
+  totalCups[5](Nick, 0);
+  totalCups[6](Declan, 0);
+  totalCups[7](Mehdi, 0);
+
 
   Serial.begin(9600);
   Serial.print("IR Receive test");
@@ -260,18 +294,17 @@ void loop() {
           editWins(currPlayer);
         }
         else if (editingWins && !editingCups) {
+          gamesPlayed[currPlayer](currPlayer, gamesPlayed.getValueOf(currPlayer) + 1);
+          totalCups[currPlayer](currPlayer, totalCups.getValueOf(currPlayer) + cupsMade.toInt());
           if (cursorPosX == 0) {
-            wins[currPlayer](currPlayer, wins.getValueOf(currPlayer) + 1);
-          } else if (cursorPosX == 5) {
-            wins[currPlayer](currPlayer, wins.getValueOf(currPlayer));
+            wins[currPlayer](currPlayer, (wins.getValueOf(currPlayer) + 1.0));
           }
-          avgCups[currPlayer](currPlayer, avgCups.getValueOf(currPlayer) + cupsMade.toInt());
+          avgCups[currPlayer](currPlayer, totalCups.getValueOf(currPlayer) / gamesPlayed.getValueOf(currPlayer));
+          winPercentage[currPlayer](currPlayer, wins.getValueOf(currPlayer) / gamesPlayed.getValueOf(currPlayer));
           cupsMade = "-1";
           editingWins = false;
           editingCups = false;
           displayCorrectInformation(currPlayer);
-          Serial.print("Wins info for: " + evalEnum(currPlayer) + ": " + wins.getValueOf(currPlayer));
-          Serial.print("cups info for: " + evalEnum(currPlayer) + ": " + avgCups.getValueOf(currPlayer));
           lcd.noCursor();
         }
 
