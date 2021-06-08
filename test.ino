@@ -33,13 +33,13 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 HashType<Person, float> hashRawArray[HASHSIZE];
 HashType<Person, float> hashRawArray2[HASHSIZE];
-HashType<Person, float> hashRawArray3[HASHSIZE]; 
+HashType<Person, int> hashRawArray3[HASHSIZE]; 
 HashType<Person, float> hashRawArray4[HASHSIZE];
 HashType<Person, float> hashRawArray5[HASHSIZE];
 
 HashMap<Person, float> wins = HashMap<Person, float>(hashRawArray, HASHSIZE);
 HashMap<Person, float> avgCups = HashMap<Person, float>(hashRawArray2, HASHSIZE);
-HashMap<Person, float> gamesPlayed = HashMap<Person, float>(hashRawArray3, HASHSIZE);
+HashMap<Person, int> gamesPlayed = HashMap<Person, int>(hashRawArray3, HASHSIZE);
 HashMap<Person, float> winPercentage = HashMap<Person, float>(hashRawArray4, HASHSIZE);
 HashMap<Person, float> totalCups = HashMap<Person, float>(hashRawArray5, HASHSIZE);
 
@@ -145,11 +145,15 @@ void displayCorrectInformation(Person p) {
   String person = evalEnum(p) + ":"; 
   String averageCups = (String)avgCups.getValueOf(p);
   String winNum = (String)winPercentage.getValueOf(p);
+  String tPlayed = (String)gamesPlayed.getValueOf(p);
   lcd.print(person);
   lcd.setCursor(person.length()+1, 0);
   lcd.print("C:" + averageCups);
-  lcd.setCursor(person.length()+6, 0);
+  lcd.setCursor(0, 1);
+  //lcd.setCursor(person.length()+6, 0);
   lcd.print("W:" + winNum);
+  lcd.setCursor(9, 1); 
+  lcd.print("T:" + tPlayed);
 
   
 }
@@ -163,6 +167,7 @@ int cursorPosX = 0;
 
 void setup() {
 
+  lcd.begin(16, 2);
   
   wins[0](Jack, 0);
   wins[1](Chris, 0);
