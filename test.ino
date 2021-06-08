@@ -148,11 +148,10 @@ void displayCorrectInformation(Person p) {
   String tPlayed = (String)gamesPlayed.getValueOf(p);
   lcd.print(person);
   lcd.setCursor(person.length()+1, 0);
-  lcd.print("C:" + averageCups);
+  lcd.print("Cups:" + averageCups);
   lcd.setCursor(0, 1);
-  //lcd.setCursor(person.length()+6, 0);
-  lcd.print("W:" + winNum);
-  lcd.setCursor(9, 1); 
+  lcd.print("Wins:" + winNum);
+  lcd.setCursor(12, 1); 
   lcd.print("T:" + tPlayed);
 
   
