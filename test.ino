@@ -1,3 +1,5 @@
+//things left to do: make it so that the win loss screen works, make it so that the program actually displays w/l instead of cups made where it should, make a back button to clear progress
+
 #include <LiquidCrystal.h>
 #include <HashMap.h>
 #include <IRremote.h>
@@ -16,12 +18,17 @@ enum Stat {
 };
 
 
+String cupsMade = "-1";
+
+
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 HashType<Person, int> hashRawArray[HASHSIZE];
+HashType<Person, int> hashRawArray2[HASHSIZE];
+HashType<Person, int> hashRawArray3[HASHSIZE]; 
 HashMap<Person, int> wins = HashMap<Person, int>(hashRawArray, HASHSIZE);
-HashMap<Person, int> avgCups = HashMap<Person, int>(hashRawArray, HASHSIZE);
-HashMap<Person, int> gamesPlayed = HashMap<Person, int>(hashRawArray, HASHSIZE);
+HashMap<Person, int> avgCups = HashMap<Person, int>(hashRawArray2, HASHSIZE);
+HashMap<Person, int> gamesPlayed = HashMap<Person, int>(hashRawArray3, HASHSIZE);
 
 Person currPlayer = Jack;
 Stat currStat = Wins;
@@ -45,6 +52,32 @@ Person findNextPlayer(Person currPlayer) {
     case Declan:
       return Mehdi;
     case Mehdi:
+      return Jack;
+    default:
+      return Jack;
+  }
+
+}
+
+
+Person findPrevPerson(Person currPlayer) {
+
+  switch (currPlayer) {
+    case Jack:
+      return Mehdi;
+    case Mehdi:
+      return Declan;
+    case Declan:
+      return Nick;
+    case Nick:
+      return Evan;
+    case Evan:
+      return Will;
+    case Will:
+      return Mason;
+    case Mason:
+      return Chris;
+    case Chris:
       return Jack;
     default:
       return Jack;
@@ -90,9 +123,31 @@ String evalEnum(Person p) {
 
 }
 
+void displayCorrectInformation(Person p) {
+
+  lcd.clear();
+  String person = evalEnum(p) + ":"; 
+  String averageCups = (String)avgCups.getValueOf(p);
+  String winNum = (String)wins.getValueOf(p);
+  lcd.print(person);
+  lcd.setCursor(person.length()+1, 0);
+  lcd.print("C:" + averageCups);
+  lcd.setCursor(person.length()+6, 0);
+  lcd.print("W:" + winNum);
+
+  
+}
+
+
+enum Command {
+  NEXTPERSON = 67, PREVPERSON = 68, SELECT = 64, NEXTSTAT = 70, PREVSTAT = 21
+};
+
+int cursorPosX = 0;
 
 void setup() {
 
+  
   wins[0](Jack, 0);
   wins[1](Chris, 0);
   wins[2](Mason, 0);
@@ -123,22 +178,218 @@ void setup() {
 
   Serial.begin(9600);
   Serial.print("IR Receive test");
-  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  IrReceiver.begin(IR_RECEIVE_PIN, DISABLE_LED_FEEDBACK);
 
-  Person goat = Jack;
-  lcd.begin(16, 2);
-  lcd.print(evalEnum2(currStat));
-  lcd.setCursor(0, 1);
-  lcd.print(evalEnum(Jack));
-
-
+  displayCorrectInformation(Jack);
 
 }
+
+boolean editingCups = false;
+boolean editingWins = false;
+
+void editCups(Person p) {
+  editingCups = true;
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Cups Made? ");
+  lcd.setCursor(11,0);
+  cursorPosX = 11;
+  lcd.cursor();
+}
+
+void editWins(Person p) {
+  editingWins = true;
+  lcd.clear(); 
+  lcd.setCursor(0,0);
+  cursorPosX = 0;
+  lcd.print("W or L");
+  lcd.setCursor(0,0);
+  lcd.cursor();
+}
+
 
 void loop() {
 
   if (IrReceiver.decode()) {
-    Serial.println(IrReceiver.decodedIRData.command, HEX);
+    
+    Serial.println(IrReceiver.decodedIRData.command);
+
+    switch(IrReceiver.decodedIRData.command) {
+      case NEXTPERSON:
+      if (editingWins == false) {
+        currPlayer = findNextPlayer(currPlayer); 
+        displayCorrectInformation(currPlayer);
+        lcd.noCursor();
+        editingCups = false;
+        editingWins = false;
+      } else {
+        lcd.cursor();
+        if (cursorPosX == 0) {
+          lcd.setCursor(5, 0);
+          cursorPosX = 5;
+        } else if (cursorPosX = 5) {
+          lcd.setCursor(0, 0);
+          cursorPosX = 0; 
+        }
+      }
+        break;
+      case PREVPERSON:
+      if (editingWins == false) {
+        currPlayer = findPrevPerson(currPlayer);
+        displayCorrectInformation(currPlayer);
+        lcd.noCursor();
+        editingCups = false;
+        editingWins = false;
+      } else {
+        lcd.cursor();
+        if (cursorPosX == 0) {
+          lcd.setCursor(5, 0);
+          cursorPosX = 5;
+        } else if (cursorPosX = 5) {
+          lcd.setCursor(0, 0);
+          cursorPosX = 0; 
+        }
+      }
+        break;
+      case SELECT:
+        if (!editingCups && !editingWins) {
+          editCups(currPlayer);
+        }
+        if (editingCups && !editingWins && !cupsMade.equals("-1")) { 
+          editingCups = false;
+          editWins(currPlayer);
+        }
+        else if (editingWins && !editingCups) {
+          if (cursorPosX == 0) {
+            wins[currPlayer](currPlayer, wins.getValueOf(currPlayer) + 1);
+          } else if (cursorPosX == 5) {
+            wins[currPlayer](currPlayer, wins.getValueOf(currPlayer));
+          }
+          avgCups[currPlayer](currPlayer, avgCups.getValueOf(currPlayer) + cupsMade.toInt());
+          cupsMade = "-1";
+          editingWins = false;
+          editingCups = false;
+          displayCorrectInformation(currPlayer);
+          Serial.print("Wins info for: " + evalEnum(currPlayer) + ": " + wins.getValueOf(currPlayer));
+          Serial.print("cups info for: " + evalEnum(currPlayer) + ": " + avgCups.getValueOf(currPlayer));
+          lcd.noCursor();
+        }
+
+        break;
+      case 22:
+        if (editingCups) {
+          if (cupsMade == "-1") {
+            cupsMade = "1";
+          } else {
+            cupsMade += "1";
+          }
+          lcd.print("1");
+        }
+        break;
+      case 25:
+        if (editingCups) {
+          lcd.print("2");
+          if (cupsMade == "-1") {
+            cupsMade = "2";
+          } else {
+            cupsMade += "2";
+          }
+        }
+        break;
+      case 13:
+        if (editingCups) {
+          lcd.print("3");
+          if (cupsMade == "-1") {
+            cupsMade = "3";
+          } else {
+            cupsMade += "3";
+          }
+        }
+        break;
+      case 12:
+        if (editingCups) {
+          lcd.print("4");
+          if (cupsMade == "-1") {
+            cupsMade = "4";
+          } else {
+            cupsMade += "4";
+          }
+        }
+        break;
+      case 24:
+        if (editingCups) {
+          lcd.print("5");
+          if (cupsMade == "-1") {
+            cupsMade = "5";
+          } else {
+            cupsMade += "5";
+          }
+        }
+        break;
+      case 94:
+        if (editingCups) {
+          lcd.print("6");
+          if (cupsMade == "-1") {
+            cupsMade = "6";
+          } else {
+            cupsMade += "6";
+          }
+        }
+        break;
+      case 8:
+        if (editingCups) {
+          lcd.print("7");
+          if (cupsMade == "-1") {
+            cupsMade = "7";
+          } else {
+            cupsMade += "7";
+          }
+        }
+        break;
+      case 28:
+        if (editingCups) {
+          lcd.print("8");
+          if (cupsMade == "-1") {
+            cupsMade = "8";
+          } else {
+            cupsMade += "8";
+          }
+        }
+        break;
+      case 90:
+        if (editingCups) {
+          lcd.print("9");
+          if (cupsMade == "-1") {
+            cupsMade = "9";
+          } else {
+            cupsMade += "9";
+          }
+        }
+        break;
+      case 82:
+        if (editingCups) {
+          lcd.print("0");
+          if (cupsMade == "-1") {
+            cupsMade = "0";
+          } else {
+            cupsMade += "0";
+          }
+        }
+        break;
+      case 74:
+          lcd.noCursor();
+          displayCorrectInformation(currPlayer);
+          cupsMade = "-1";
+          editingWins = false; 
+          editingCups = false;
+
+      default:
+        Serial.println("not mapped");
+        break;
+    }
+      
+    delay(500);
     IrReceiver.resume();
   }
+  
 }
